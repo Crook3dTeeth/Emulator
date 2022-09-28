@@ -7,6 +7,7 @@
 
 # System Info
 from doctest import OutputChecker
+from logging import raiseExceptions
 from operator import contains
 from os import system
 from pickle import NONE
@@ -125,7 +126,7 @@ def MEMSetup():
         MEM = memory(mem_bus_width, mem_size)
         debugPrint(mem_size//8, "MEMSetup successfully || size: ", mem_bus_width, " Bytes || bus width: ", True)
     except:
-        print("MEM Setup failed")
+        raise Exception("MEM Setup failed")
     return MEM
 
 
@@ -162,6 +163,13 @@ class memory:
 # ALU
 def ALUSetup():
     print("ALUSetup")
+
+
+
+def createBus():
+    bus = BUS()
+    print(bus)
+    return bus
 
 class BUS():
     def __init__(self):
@@ -223,33 +231,45 @@ class BUS():
 
 # PCIE (filesystem)
 
-# VideoOutput
+
 
 def main():
     try:
-        MEM = MEMSetup()
-        
-    except:
-        print("Failed to setup Memory")
+        try:
+            MEM = MEMSetup()
+        except:
+            raise Exception("Failed to setup Memory")
 
-    try:
-        ALUSetup()
-    except:
-        print("Failed to setup ALU")
-
-    if clock_rate == 0:
-        step_clock()
-    else:
-        start_clock(clock_rate)
-    #openFile(kernal)
+        try:
+            ALUSetup()
+        except:
+            raise Exception("Failed to setup ALU")
 
 
+        try:
+            MainBus = createBus()
+        except:
+            raise Exception("Failed to create main bus")
+
+        try:
+            graphics = Graphics(display_sizeX, display_sizeY, '1', '2')
+            graphics.createWindow()
+            print("Created Window Successfully")
+        except:
+            print("Window graphics failed")
+            print("Reverting to command output")
 
 
-def testFunc():
-    bus = BUS()
-    print(bus)
+        if clock_rate == 0:
+            step_clock()
+        else:
+            start_clock(clock_rate)
+        #openFile(kernal)
+    except Exception as ex:
+        print(ex)
 
 
-#main()
-testFunc()
+
+
+main()
+#testFunc()
