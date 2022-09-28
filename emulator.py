@@ -12,6 +12,9 @@ from os import system
 from pickle import NONE
 from threading import excepthook
 from debug import*
+from instructionSet import*
+from screenGraphics import*
+
 
 display_sizeX = 854
 display_sizeY = 480
@@ -240,27 +243,7 @@ def main():
         start_clock(clock_rate)
     #openFile(kernal)
 
-#region instruction set
 
-def add():
-    pass
-
-def addA():
-    pass
-
-def addB():
-    pass
-
-def addM():
-    pass
-
-def movM():
-    pass
-
-def movB():
-    pass
-
-#endregion
 
 
 def testFunc():
