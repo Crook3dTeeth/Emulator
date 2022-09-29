@@ -4,11 +4,36 @@
 from logging import exception
 from msilib.schema import Binary
 
+from requests import delete
+
 
 system_raw = False
 system_hex = False
 system_int = True
 system_cha = False
+
+raw_input = ''
+
+
+class rawInput:
+    """ Class for debug and main file to share raw input data
+    """
+
+    def __init__(self):
+        pass
+
+    def append(self, data):
+        global raw_input
+        raw_input += str(data)
+
+    def delete(self):
+        raw_input = ''
+
+    def __repr__(self):
+        return raw_input
+
+    def __str__(self):
+        return str(raw_input)
 
 
 def debug(register_list, memory = [], extra_info = ""):
@@ -16,6 +41,18 @@ def debug(register_list, memory = [], extra_info = ""):
         register_name, size, bus_width, data = register.printRegister()
         print("Register name: {0} :: Used Capacity: {1} ".format(register_name, RegisterCapacity(bus_width, size, data)))
 
+def printf(line):
+    """ Prints line and puts current input to the bottom
+    """ 
+    if raw_input != '':
+        print('\033[1A', end='\x1b[2K')
+        
+    print()
+    print()
+    print()
+    print()
+    print(line)
+    print(">> " + raw_input, end = '')
 
 def RegisterCapacity(bus_width, size, data = []):
     register_capacity = 0

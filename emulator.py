@@ -1,20 +1,20 @@
-
-# Architect
 #region
-
-
-
 
 # System Info
 from doctest import OutputChecker
 from logging import raiseExceptions
+import msvcrt
 from operator import contains
 from os import system
 from pickle import NONE
+import sys
 from threading import excepthook
+from tracemalloc import start
 from debug import*
 from instructionSet import*
 from screenGraphics import*
+from time import sleep, time
+import _thread
 
 
 display_sizeX = 854
@@ -24,13 +24,21 @@ display_sizeY = 480
 #===========================#
 # System Debug Options
 system_debug = True # Extra output info
+system_step_time = 5 # Seconds
 
 #===========================#
 
+#===========================#
+inputList = []
+clockInputList = [] # commands for the clock cycle to do : "1"
+otherInputCmds = [] # anything else                      : "2"
+currentLine = b''
+inputCommands = {"q":"1"}
+#===========================#
 
 # System specs
 num_registers = 4
-clock_rate = 100 # Hz, 0 for step clock with printed output if system_debug is true
+clock_rate = 1 # Hz, 0 for step clock with printed output if system_debug is true
 #mem options
 mem_bus_width = 32
 mem_size = 1024 * mem_bus_width     # Bytes
@@ -54,17 +62,75 @@ def performAction(line):
     pass
 
 
+# Input module
+def get_input():
+    """ Gets the keyboard inputs
+    """
+    raw_key = rawInput()
+
+    while True:
+        key_press = msvcrt.getch()
+        raw_key.append(str(key_press))
+
+        if key_press == '\r':
+            inputList.append(raw_key)
+            raw_key.delete()
+            decode_input()
+        # print current terminal line
+        printf("")
+
+def decode_input():
+    """ Sorts the inputs to the correct array locations
+    """
+    for item in inputList:
+        if item in inputCommands:
+            key = inputCommands[item]
+            if key == "1":
+                clockInputList.append(item)
+            else:
+                otherInputCmds.append(item)
+        else:
+            print("Invalid input")
+        inputList.remove(item)
+        
+
+
 # Load Kernal
 
 def loadKernal(kernal_path):
-    #puts the kernal into memory for booting
+    #puts the kernal/boot program into memory for booting
     pass
 
 
 # Clock starts from mem address 0
 def start_clock(clock_speed):
-    while True:
-        pass
+    # Every x seconds print output if debug
+    clock_step = system_step_time/(1/clock_speed)
+    current_step = 0 
+    endTime = time()
+    is_running = True
+
+    while is_running:
+        
+        startTime = time()
+        if endTime - startTime > (1/clock_speed):
+            pass
+        else:
+            sleep_time = (1/clock_speed) - (endTime - startTime)
+            sleep(sleep_time)
+
+        current_step += 1 
+        if current_step >= clock_step:
+            printf("Clock step")
+            current_step = 0
+            
+        # Check clock input commands
+        for input in clockInputList:
+            if input == 'q':
+                is_running = False
+    
+        endTime = time()
+        
 
 def step_clock():
     input()
@@ -154,8 +220,6 @@ class memory:
         while i < self.busW:
             zero_line += "0"
             i += 1
-        
-        
 
         pass
 
@@ -231,33 +295,38 @@ class BUS():
 
 # PCIE (filesystem)
 
+# Main modules
+try:
+    try:
+        MEM = MEMSetup()
+    except:
+        raise Exception("Failed to setup Memory")
 
+    try:
+        ALUSetup()
+    except:
+        raise Exception("Failed to setup ALU")
+
+
+    try:
+        MainBus = createBus()
+    except:
+        raise Exception("Failed to create main bus")
+
+    try:
+        graphics = Graphics(display_sizeX, display_sizeY, '1', '2')
+        graphics.createWindow()
+        print("Created Window Successfully")
+    except:
+        print("Window graphics failed")
+        print("Reverting to command output")
+except Exception as ex:
+    print(ex)
 
 def main():
     try:
-        try:
-            MEM = MEMSetup()
-        except:
-            raise Exception("Failed to setup Memory")
-
-        try:
-            ALUSetup()
-        except:
-            raise Exception("Failed to setup ALU")
-
-
-        try:
-            MainBus = createBus()
-        except:
-            raise Exception("Failed to create main bus")
-
-        try:
-            graphics = Graphics(display_sizeX, display_sizeY, '1', '2')
-            graphics.createWindow()
-            print("Created Window Successfully")
-        except:
-            print("Window graphics failed")
-            print("Reverting to command output")
+        # Create input thread
+        _thread.start_new_thread(get_input, ())
 
 
         if clock_rate == 0:
@@ -265,9 +334,10 @@ def main():
         else:
             start_clock(clock_rate)
         #openFile(kernal)
+
+
     except Exception as ex:
         print(ex)
-
 
 
 

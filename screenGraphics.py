@@ -13,7 +13,7 @@ class Graphics:
         self.id = id
         self.pcieSlot = pcieSlot
 
-        pass
+        self.createWindow()
 
     def createWindow(self):
         
@@ -22,5 +22,8 @@ class Graphics:
         self.window = window
 
     def updateWindow(self):
+        pass
+
+    def draw(self, x, y, color):
         pass
 
