@@ -5,7 +5,7 @@ from doctest import OutputChecker
 from logging import raiseExceptions
 import msvcrt
 from operator import contains
-from os import system
+import os
 from pickle import NONE
 import sys
 from threading import excepthook
@@ -27,6 +27,7 @@ system_debug = True # Extra output info
 system_step_time = 5 # Seconds
 
 #===========================#
+
 
 #===========================#
 inputList = []
@@ -70,12 +71,16 @@ def get_input():
 
     while True:
         key_press = msvcrt.getch()
-        raw_key.append(str(key_press))
+        raw_key.append(key_press.decode("utf-8"))
 
-        if key_press == '\r':
-            inputList.append(raw_key)
+        if key_press.decode("utf-8") == '\x08':
             raw_key.delete()
+
+        if key_press == b'\r':
+            inputList.append(str(raw_key).rstrip('\r'))
+            raw_key.remove()
             decode_input()
+
         # print current terminal line
         printf("")
 
@@ -90,7 +95,7 @@ def decode_input():
             else:
                 otherInputCmds.append(item)
         else:
-            print("Invalid input")
+            printf("Invalid input")
         inputList.remove(item)
         
 

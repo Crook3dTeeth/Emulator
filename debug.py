@@ -3,17 +3,54 @@
 # Output conversions
 from logging import exception
 from msilib.schema import Binary
-
+import os
 from requests import delete
+from datetime import datetime
 
+
+r_path = "C:/Users/tomkr/OneDrive/Documents/PCProject/EmulatorKernal/"
 
 system_raw = False
 system_hex = False
 system_int = True
 system_cha = False
-
+file_output = False
 raw_input = ''
+debug_lines = 4
 
+
+if file_output:
+    date = datetime.today().strftime('%Y-%m-%d %H-%M-%S')
+    openFile = open("Output/" + date + ".txt", "w")
+
+if os.name == 'nt':
+    clear = lambda: os.system('cls')
+else:
+    clear = lambda: os.system('clear')
+
+
+
+class fileOutput:
+    def __init__(self):
+        pass
+
+    def outPut(line):
+        date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+        openFile.write(date + " : " + line)
+
+
+data = [""] * debug_lines
+        
+def store(line):
+
+    for i in range(debug_lines-1, 0, -1):
+        if i > 0:
+            data[i] = data[i-1]
+    data[0] = line
+
+    if file_output:
+        date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+        openFile.write(date + " : " + line)
 
 class rawInput:
     """ Class for debug and main file to share raw input data
@@ -23,36 +60,56 @@ class rawInput:
         pass
 
     def append(self, data):
+        """ Add string to end of raw_input
+        """
         global raw_input
-        raw_input += str(data)
+        raw_input += data
 
     def delete(self):
+        """ Delete the last input
+        """
+        global raw_input
+
+        if len(raw_input) > 0:
+            raw_input = raw_input[:-1]
+
+    def remove(self):
+        """ Resets raw_input to nothing
+        """
+        global raw_input
         raw_input = ''
 
     def __repr__(self):
         return raw_input
 
     def __str__(self):
-        return str(raw_input)
+        return raw_input
 
 
 def debug(register_list, memory = [], extra_info = ""):
+    """ Prints debug info of current state
+    """
     for register in register_list:
         register_name, size, bus_width, data = register.printRegister()
-        print("Register name: {0} :: Used Capacity: {1} ".format(register_name, RegisterCapacity(bus_width, size, data)))
+        line = "Register name: {0} :: Used Capacity: {1} ".format(register_name, RegisterCapacity(bus_width, size, data))
+        fileOutput.outPut(line)
+        print(line)
+
 
 def printf(line):
     """ Prints line and puts current input to the bottom
     """ 
+
+    store(line)
+
     if raw_input != '':
-        print('\033[1A', end='\x1b[2K')
-        
-    print()
-    print()
-    print()
-    print()
-    print(line)
-    print(">> " + raw_input, end = '')
+        clear()
+
+    for i in range(debug_lines - 1, 0, -1):
+        print(data[i])
+
+    print(">> " + str(raw_input), end = '')
+
 
 def RegisterCapacity(bus_width, size, data = []):
     register_capacity = 0
@@ -74,32 +131,35 @@ def debugPrint(data, extra_info = "", data1 = "", extra_info1 = "", raw_only = F
     """Used to print debug info"""
 
     if raw_only:
-        print("{0}{1}{2}{3}".format(extra_info, data, extra_info1, data1))
+        line = "{0}{1}{2}{3}".format(extra_info, data, extra_info1, data1)
 
     else:
         if system_raw:
-            print("{0}{1}{2}{3}".format(extra_info, data, extra_info1, data1))
+            line = "{0}{1}{2}{3}".format(extra_info, data, extra_info1, data1)
 
         if system_int:
             int_data = str_to_binary(data)
             int_data1 = str_to_binary(data1)
-            print("{0}{1}{2}{3}".format(extra_info, int_data, extra_info1, int_data1))
+            line = "{0}{1}{2}{3}".format(extra_info, int_data, extra_info1, int_data1)
 
         if system_hex:
             int_data = str_to_binary(data)
             int_data1 = str_to_binary(data1)
             try:
-                print("{0}{1}{2}{3}".format(extra_info, hex(int_data), extra_info1, hex(int_data1)))
+                line = "{0}{1}{2}{3}".format(extra_info, hex(int_data), extra_info1, hex(int_data1))
             except:
-                print("Not valid hex")
+                line = "Not valid hex"
 
         if system_cha:
             int_data = str_to_binary(data)
             int_data1 = str_to_binary(data1)
             try:
-                print("{0}{1}{2}{3}".format(extra_info, chr(int_data), extra_info1, chr(int_data1)))
+                line = "{0}{1}{2}{3}".format(extra_info, chr(int_data), extra_info1, chr(int_data1))
             except:
-                print("Not valid hex")
+                line = "Not valid hex"
+
+    fileOutput.outPut(line)
+    print(line)
 
 
 def str_to_binary(data):

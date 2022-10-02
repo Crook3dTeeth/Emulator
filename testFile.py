@@ -1,8 +1,13 @@
 from debug import *
+import os
 
 
 # Test file to test stuff
-
+clear = lambda: os.system('cls')
 
 print("Tsets")
-print('\033[1A', end='\x1b[2K')
+print("Tsets")
+print("Tsets")
+print("Tsets")
+print("Tsets")
+clear()
