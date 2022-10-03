@@ -24,7 +24,7 @@ display_sizeY = 480
 #===========================#
 # System Debug Options
 system_debug = True # Extra output info
-system_step_time = 5 # Seconds
+system_step_time = 1 # Seconds
 
 #===========================#
 
@@ -195,7 +195,7 @@ class Registers:
 def MEMSetup():
     try:
         MEM = memory(mem_bus_width, mem_size)
-        debugPrint(mem_size//8, "MEMSetup successfully || size: ", mem_bus_width, " Bytes || bus width: ", True)
+        debugPrint(mem_size//8, "MEM Setup successfully || size: ", mem_bus_width, " Bytes || bus width: ", True)
     except:
         raise Exception("MEM Setup failed")
     return MEM
@@ -334,10 +334,12 @@ def main():
         _thread.start_new_thread(get_input, ())
 
 
+        
         if clock_rate == 0:
             step_clock()
         else:
             start_clock(clock_rate)
+            #_thread.start_new_thread(start_clock, (clock_rate))
         #openFile(kernal)
 
 

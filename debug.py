@@ -35,8 +35,10 @@ class fileOutput:
         pass
 
     def outPut(line):
-        date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
-        openFile.write(date + " : " + line)
+        if file_output:
+            global openFile
+            date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+            openFile.write(date + " : " + line)
 
 
 data = [""] * debug_lines
@@ -44,7 +46,7 @@ data = [""] * debug_lines
 def store(line):
 
     for i in range(debug_lines-1, 0, -1):
-        if i > 0:
+        if i >= 0:
             data[i] = data[i-1]
     data[0] = line
 
@@ -87,7 +89,7 @@ class rawInput:
 
 
 def debug(register_list, memory = [], extra_info = ""):
-    """ Prints debug info of current state
+    """ Prints all the debug info of current state
     """
     for register in register_list:
         register_name, size, bus_width, data = register.printRegister()
@@ -102,11 +104,12 @@ def printf(line):
 
     store(line)
 
-    if raw_input != '':
-        clear()
+    #if raw_input != '':
+    clear()
 
-    for i in range(debug_lines - 1, 0, -1):
-        print(data[i])
+    for i in range(debug_lines - 1, -1, -1):
+        if data[i] != '':
+            print(data[i])
 
     print(">> " + str(raw_input), end = '')
 
@@ -127,36 +130,38 @@ def RegisterCapacity(bus_width, size, data = []):
     return register_capacity
 
 
-def debugPrint(data, extra_info = "", data1 = "", extra_info1 = "", raw_only = False):
+def debugPrint(data, extra_info = "", data1 = "", extra_info1 = "", raw_only = False, system_raw1 = system_raw, system_int1 = system_int, system_hex1 = system_hex, system_cha1 = system_cha):
     """Used to print debug info"""
 
+    line = ""
+
     if raw_only:
-        line = "{0}{1}{2}{3}".format(extra_info, data, extra_info1, data1)
+        line += "{0}{1}{2}{3}\n".format(extra_info, data, extra_info1, data1)
 
     else:
-        if system_raw:
-            line = "{0}{1}{2}{3}".format(extra_info, data, extra_info1, data1)
+        if system_raw1:
+            line += "{0}{1}{2}{3}\n".format(extra_info, data, extra_info1, data1)
 
-        if system_int:
+        if system_int1:
             int_data = str_to_binary(data)
             int_data1 = str_to_binary(data1)
-            line = "{0}{1}{2}{3}".format(extra_info, int_data, extra_info1, int_data1)
+            line += "{0}{1}{2}{3}\n".format(extra_info, int_data, extra_info1, int_data1)
 
-        if system_hex:
-            int_data = str_to_binary(data)
-            int_data1 = str_to_binary(data1)
-            try:
-                line = "{0}{1}{2}{3}".format(extra_info, hex(int_data), extra_info1, hex(int_data1))
-            except:
-                line = "Not valid hex"
-
-        if system_cha:
+        if system_hex1:
             int_data = str_to_binary(data)
             int_data1 = str_to_binary(data1)
             try:
-                line = "{0}{1}{2}{3}".format(extra_info, chr(int_data), extra_info1, chr(int_data1))
+                line += "{0}{1}{2}{3}\n".format(extra_info, hex(int_data), extra_info1, hex(int_data1))
             except:
-                line = "Not valid hex"
+                line += "Not valid hex\n"
+
+        if system_cha1:
+            int_data = str_to_binary(data)
+            int_data1 = str_to_binary(data1)
+            try:
+                line += "{0}{1}{2}{3}\n".format(extra_info, chr(int_data), extra_info1, chr(int_data1))
+            except:
+                line += "Not valid hex\n"
 
     fileOutput.outPut(line)
     print(line)
@@ -165,13 +170,19 @@ def debugPrint(data, extra_info = "", data1 = "", extra_info1 = "", raw_only = F
 def str_to_binary(data):
     count = 0
     converted_int = 0
-    for i in reversed(data):
-        if i == "1":
-            converted_int += 2 ** count
-        elif i != "0":
-            return "Error: Not a valid binary number"
-        count += 1
-    return converted_int
+    try:
+        for i in reversed(data):
+            if i == "1":
+                converted_int += 2 ** count
+            elif i != "0":
+                return " Error: Not a valid binary number "
+            count += 1
+    except:
+        return " : Error not a valid binary number "
+    if converted_int != 0:
+        return converted_int
+    else:
+        return ''
 
 class c:
     class clear:
