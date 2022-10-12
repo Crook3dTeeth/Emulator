@@ -24,7 +24,7 @@ display_sizeY = 480
 #===========================#
 # System Debug Options
 system_debug = True # Extra output info
-system_step_time = 1 # Seconds
+system_step_time = 5 # Seconds
 
 #===========================#
 
@@ -74,6 +74,7 @@ def get_input():
         raw_key.append(key_press.decode("utf-8"))
 
         if key_press.decode("utf-8") == '\x08':
+            raw_key.delete()
             raw_key.delete()
 
         if key_press == b'\r':

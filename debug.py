@@ -23,10 +23,16 @@ if file_output:
     date = datetime.today().strftime('%Y-%m-%d %H-%M-%S')
     openFile = open("Output/" + date + ".txt", "w")
 
-if os.name == 'nt':
-    clear = lambda: os.system('cls')
-else:
-    clear = lambda: os.system('clear')
+#if os.name == 'nt':
+#    clear = lambda: os.system('cls')
+#else:
+#    clear = lambda: os.system('clear')
+
+
+def clear():
+    print("\n\n\n\n\n\n\n")
+
+    
 
 
 
@@ -111,7 +117,8 @@ def printf(line):
         if data[i] != '':
             print(data[i])
 
-    print(">> " + str(raw_input), end = '')
+    print(">> " + str(raw_input))
+    
 
 
 def RegisterCapacity(bus_width, size, data = []):
