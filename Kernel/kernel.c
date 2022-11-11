@@ -1,0 +1,3 @@
+#define BOOTSTART = 0x0000000
+#define BOOTEND = 0x0000500
+
